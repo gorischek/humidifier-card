@@ -1,0 +1,30 @@
+name: Publish release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - name: Publish bundled card
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          CARD_TAG="v$(node -p 'JSON.parse(require("fs").readFileSync("package.json", "utf8")).version')"
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "$CARD_TAG" ]; then
+            echo "Tag does not match package.json version"
+            exit 1
+          fi
+          gh release create "$CARD_TAG" dist/humidifier-card.js --target "$GITHUB_SHA" --title "Humidifier Card $CARD_TAG" --generate-notes
