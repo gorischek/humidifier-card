@@ -63,7 +63,7 @@ Auch als Datei unter [examples/levoit.yaml](examples/levoit.yaml) verfügbar.
 - **Mitte:** aktuelle Luftfeuchtigkeit, auf ganze Prozent gerundet.
 - **Oben:** Auswahl der vom Gerät angebotenen Betriebsmodi. Die ursprünglichen Optionsnamen werden unverändert an HA gesendet.
 - **Unten:** Ein/Aus, Schnellwahl der Betriebsmodi sowie die Statistikfelder.
-- **Warnungen:** erscheinen bei `on` der Wasser- oder Tanksensoren. Ein Klick öffnet die jeweilige Entität.
+- **Tank und Wasser:** eine eigene Statuszeile zeigt immer „Tank vorhanden“ und „Wasser vorhanden“ beziehungsweise „Tank fehlt“ und „Wasser fehlt“. Die Binärsensoren melden keinen Füllstand. `on` bedeutet „fehlt“, `off` bedeutet „vorhanden“. Unbekannte oder nicht verfügbare Zustände werden ausdrücklich angezeigt. Ein Klick öffnet die jeweilige Entität.
 
 Die Karte führt keine eigene Regelung aus. Vorhandene Automationen für Zeitfenster, Fensterkontakt, Feuchtigkeitsregelung und Tankzustand arbeiten weiter. Manuelle Änderungen können von diesen Automationen beim nächsten Durchlauf wieder angepasst werden.
 
@@ -152,7 +152,7 @@ npm run test:browser
 
 Nach Änderungen **`npm run build`** ausführen und die aktualisierte Datei unter `dist/` zusammen mit dem Quellcode committen. Der Check-Workflow prüft, ob Quellcode und Bundle zusammenpassen.
 
-Für ein Release die Version in `package.json` und `package-lock.json` erhöhen, neu bauen und committen. Anschließend entweder einen passenden `v*`-Tag pushen oder unter **Actions → Publish release → Run workflow** den Release-Workflow starten. Er prüft den Code und veröffentlicht die gebaute `humidifier-card.js` als Release-Anhang. Für `1.0.0` ist der Tag `v1.0.0`.
+Für ein Release die Version in `package.json` und `package-lock.json` erhöhen, neu bauen und committen. Anschließend entweder einen passenden `v*`-Tag pushen oder unter **Actions → Publish release → Run workflow** den Release-Workflow starten. Er prüft den Code und veröffentlicht die gebaute `humidifier-card.js` als Release-Anhang. Für die aktuelle Version `1.0.1` ist der Tag `v1.0.1`.
 
 ## Herkunft und Lizenz
 

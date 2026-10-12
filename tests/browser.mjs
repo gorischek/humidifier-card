@@ -28,6 +28,12 @@ try {
   await expect(full.locator('.target')).toContainText('45 %');
   await expect(full.locator('.stats-value').first()).toHaveText('22,4');
   await expect(full.locator('.mode-control select')).toHaveValue('Auto');
+  await expect(full.locator('.mode-control select')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await expect(full.locator('.mode-control select')).toHaveCSS('appearance','none');
+  await expect(full.locator('.status-indicator.ok')).toHaveCount(2);
+  await expect(full.locator('.status-indicators')).toContainText('Tank vorhanden');
+  await expect(full.locator('.status-indicators')).toContainText('Wasser vorhanden');
+  await expect(page.locator('#compact .status-indicator.ok')).toHaveCount(2);
   await expect(full.locator('humidifier-round-slider [role=slider]')).toHaveAttribute('aria-valuemin','30');
 
   // Independent sensor updates, warnings and unavailable states refresh immediately.
@@ -43,6 +49,15 @@ try {
   await expect(full.locator('.warning')).toContainText('Tank fehlt');
   await page.evaluate(() => window.update(window.ids.tank,'off'));
   await expect(full.locator('.warning')).toHaveCount(0);
+  await expect(full.locator('.status-indicator.ok')).toHaveCount(2);
+  await page.evaluate(() => window.update(window.ids.tank,'unknown'));
+  await expect(full.locator('.status-indicators')).toContainText('Tank: Unbekannt');
+  await expect(full.locator('.status-indicator.ok')).toHaveCount(1);
+  await page.evaluate(() => window.update(window.ids.tank,'off'));
+  await page.evaluate(() => window.update(window.ids.water,'unavailable'));
+  await expect(full.locator('.status-indicators')).toContainText('Wasser: Nicht verfügbar');
+  await expect(full.locator('.status-indicator.ok')).toHaveCount(1);
+  await page.evaluate(() => window.update(window.ids.water,'off'));
   await page.evaluate(() => window.update(window.ids.humidity,'unavailable'));
   await expect(full.locator('.humidity')).toHaveText('— %');
   await page.evaluate(() => window.update(window.ids.humidity,'43.2'));
@@ -112,6 +127,10 @@ try {
   await page.evaluate(() => window.card.addEventListener('hass-more-info',event => { window.moreInfo=event.detail.entityId; }));
   await full.locator('.stats-block').first().click();
   expect(await page.evaluate(() => window.moreInfo)).toBe('sensor.levoit_luftbefeuchter_temperatur');
+  await full.locator('.status-indicator').first().click();
+  expect(await page.evaluate(() => window.moreInfo)).toBe('binary_sensor.levoit_luftbefeuchter_tank_fehlt');
+  await full.locator('.status-indicator').last().click();
+  expect(await page.evaluate(() => window.moreInfo)).toBe('binary_sensor.levoit_luftbefeuchter_wasser_fehlt');
 
   // Visual editor preserves advanced YAML fields while changing one setting.
   await page.evaluate(() => {
@@ -133,6 +152,7 @@ try {
     window.card.setConfig({entity:'humidifier.native'});
   });
   await expect(full.locator('.humidity')).toHaveText('46 %');
+  await expect(full.locator('.status-indicators')).toHaveCount(0);
   await expect(full.locator('.target')).toContainText('50 %');
   await full.locator('.mode-control select').selectOption('low');
   await expect(full.locator('.mode-control select')).toHaveValue('low');
@@ -150,11 +170,12 @@ try {
   await mkdir('docs',{recursive:true});
   await page.screenshot({path:'docs/preview-light.png',fullPage:true});
   await page.evaluate(() => document.body.classList.add('dark'));
+  await expect(full.locator('.mode-control select')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
   await page.screenshot({path:'docs/preview-dark.png',fullPage:true});
   await page.setViewportSize({width:390,height:850});
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
-  console.log('Browser checks passed: live sensor updates, warnings, unavailable values, mode, power, keyboard slider, compact slider, errors, templates, editor, themes and mobile layout.');
+  console.log('Browser checks passed: transparent mode selector, persistent tank/water states, live sensor updates, warnings, unavailable values, mode, power, keyboard slider, compact slider, errors, templates, editor, themes and mobile layout.');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

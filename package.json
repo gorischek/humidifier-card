@@ -1,6 +1,6 @@
 {
   "name": "humidifier-card",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Humidifier card for Home Assistant, adapted from Purifier Card",
   "type": "module",
   "main": "dist/humidifier-card.js",

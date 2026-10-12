@@ -16,8 +16,8 @@ declare const CARD_VERSION: string;
 console.info(`HUMIDIFIER-CARD ${CARD_VERSION}`);
 
 const translations = {
-  de: { name: 'Luftbefeuchter', humidity: 'Luftfeuchtigkeit', target: 'Ziel', temperature: 'Temperatur', on: 'Eingeschaltet', off: 'Ausgeschaltet', unavailable: 'Nicht verfügbar', unknown: 'Unbekannt', mode: 'Betriebsmodus', power: 'Ein/Aus', more: 'Weitere Informationen', water: 'Wasser fehlt', tank: 'Tank fehlt', failed: 'Aktion fehlgeschlagen', auto: 'Auto', low: 'Niedrig', high: 'Hoch' },
-  en: { name: 'Humidifier', humidity: 'Humidity', target: 'Target', temperature: 'Temperature', on: 'On', off: 'Off', unavailable: 'Unavailable', unknown: 'Unknown', mode: 'Operating mode', power: 'Power', more: 'More information', water: 'Water missing', tank: 'Tank missing', failed: 'Action failed', auto: 'Auto', low: 'Low', high: 'High' },
+  de: { name: 'Luftbefeuchter', humidity: 'Luftfeuchtigkeit', target: 'Ziel', temperature: 'Temperatur', on: 'Eingeschaltet', off: 'Ausgeschaltet', unavailable: 'Nicht verfügbar', unknown: 'Unbekannt', mode: 'Betriebsmodus', power: 'Ein/Aus', more: 'Weitere Informationen', water: 'Wasser fehlt', tank: 'Tank fehlt', water_label: 'Wasser', tank_label: 'Tank', water_present: 'Wasser vorhanden', tank_present: 'Tank vorhanden', failed: 'Aktion fehlgeschlagen', auto: 'Auto', low: 'Niedrig', high: 'Hoch' },
+  en: { name: 'Humidifier', humidity: 'Humidity', target: 'Target', temperature: 'Temperature', on: 'On', off: 'Off', unavailable: 'Unavailable', unknown: 'Unknown', mode: 'Operating mode', power: 'Power', more: 'More information', water: 'Water missing', tank: 'Tank missing', water_label: 'Water', tank_label: 'Tank', water_present: 'Water present', tank_present: 'Tank present', failed: 'Action failed', auto: 'Auto', low: 'Low', high: 'High' },
 };
 type TranslationKey = keyof typeof translations.en;
 
@@ -49,7 +49,10 @@ export class HumidifierCard extends LitElement {
     this.error = '';
   }
 
-  getCardSize() { return this.config?.compact_view ? 3 : 5; }
+  getCardSize() {
+    const base = this.config?.compact_view ? 3 : 5;
+    return base + (this.config?.tank_missing_entity || this.config?.water_missing_entity ? 1 : 0);
+  }
 
   disconnectedCallback() {
     super.disconnectedCallback();
@@ -155,6 +158,7 @@ export class HumidifierCard extends LitElement {
         ${!mode.options.includes(mode.value) ? html`<option value=${mode.value}>${mode.value === 'unavailable' || mode.value === 'unknown' || !mode.value ? this.t('unavailable') : mode.value}</option>` : nothing}
         ${repeat(mode.options, value => value, value => html`<option value=${value} .selected=${value === mode.value}>${this.modeLabel(value)}</option>`)}
       </select>
+      <ha-icon class="mode-arrow" icon="mdi:menu-down"></ha-icon>
     </label>`;
   }
 
@@ -212,8 +216,34 @@ export class HumidifierCard extends LitElement {
     });
   }
 
+  private renderTankAndWater() {
+    const config = this.config!;
+    const indicators = [
+      { id: config.tank_missing_entity, present: 'tank_present', missing: 'tank', label: 'tank_label', icon: 'mdi:cup-outline', alertIcon: 'mdi:cup-off-outline' },
+      { id: config.water_missing_entity, present: 'water_present', missing: 'water', label: 'water_label', icon: 'mdi:water-check', alertIcon: 'mdi:water-alert' },
+    ] as const;
+    if (!indicators.some(indicator => indicator.id)) return nothing;
+    return html`<div class="status-indicators" aria-live="polite">${indicators.map(indicator => {
+      if (!indicator.id) return nothing;
+      const entity = this.hass.states[indicator.id];
+      const known = isAvailable(entity) && ['on', 'off'].includes(entity.state);
+      const missing = known && entity.state === 'on';
+      const label = known ? this.t(missing ? indicator.missing : indicator.present)
+        : `${this.t(indicator.label)}: ${this.t(entity?.state === 'unknown' ? 'unknown' : 'unavailable')}`;
+      return html`<button class="status-indicator ${known ? missing ? 'warning' : 'ok' : 'unknown'}"
+        data-entity=${indicator.id} @click=${() => this.more(indicator.id)}>
+        <ha-icon icon=${known ? missing ? indicator.alertIcon : indicator.icon : 'mdi:help-circle-outline'}></ha-icon>
+        ${label}
+      </button>`;
+    })}</div>`;
+  }
+
   private renderWarnings() {
-    const warnings = this.activeWarnings();
+    // Built-in tank and water states are always visible in their own row.
+    // This row retains additional warnings configured through YAML.
+    const config = this.config!;
+    const warnings = this.activeWarnings().filter(warning =>
+      warning.entity_id !== config.tank_missing_entity && warning.entity_id !== config.water_missing_entity);
     return warnings.length ? html`<div class="warnings" aria-live="polite">${warnings.map(warning => html`
       <button class="warning" @click=${() => this.more(warning.entity_id)}>
         <ha-icon icon=${warning.icon ?? 'mdi:alert-outline'}></ha-icon>
@@ -272,7 +302,7 @@ export class HumidifierCard extends LitElement {
         ${this.config.show_name ? html`<div class="friendly-name">${this.config.name ?? entity.attributes.friendly_name ?? this.t('name')}</div>` : nothing}
         ${this.config.show_state ? html`<div class="state" aria-live="polite">${this.pending ? html`<span class="pending" aria-hidden="true"></span>` : nothing}${this.t(stateKey)}</div>` : nothing}
       </div>` : nothing}
-      ${this.renderWarnings()}${this.renderStats()}${this.renderToolbar()}
+      ${this.renderTankAndWater()}${this.renderWarnings()}${this.renderStats()}${this.renderToolbar()}
       ${this.error ? html`<div class="error" role="alert">${this.error}</div>` : nothing}
     </ha-card>`;
   }

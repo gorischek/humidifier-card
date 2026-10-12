@@ -16,9 +16,10 @@ export const styles = css`
   button:disabled, select:disabled, input:disabled { cursor: default; opacity: .45; }
   button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--hc-accent); outline-offset: 3px; }
   .header { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: 2px 10px; gap: 8px; }
-  .mode-control { display: inline-flex; align-items: center; color: var(--hc-secondary); min-width: 0; gap: 4px; }
+  .mode-control { position: relative; display: inline-flex; align-items: center; color: var(--hc-secondary); min-width: 0; gap: 4px; }
   .mode-control ha-icon { --mdc-icon-size: 18px; }
-  select { color: var(--hc-secondary); background: var(--hc-background); border: 0; padding: 8px 3px; max-width: 190px; }
+  select { appearance: none; -webkit-appearance: none; color: var(--hc-secondary); background: transparent; border: 0; padding: 8px 24px 8px 3px; max-width: 190px; }
+  .mode-arrow { position: absolute; right: 3px; pointer-events: none; }
   option { background: var(--card-background-color, #fff); color: var(--hc-primary); }
   .icon-button { border: 0; border-radius: 50%; background: transparent; width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .icon-button:hover { background: var(--secondary-background-color, #eeeeee); }
@@ -54,6 +55,11 @@ export const styles = css`
   .gap { flex: 1; }
   .mode-button { border: 0; background: transparent; color: var(--hc-secondary); border-radius: 18px; padding: 9px 10px; font-size: 13px; }
   .warnings { border-top: 1px solid var(--hc-divider); padding: 8px 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .status-indicators { border-top: 1px solid var(--hc-divider); padding: 8px 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .status-indicator { flex: 1 1 120px; border: 0; background: transparent; color: var(--hc-primary); border-radius: 6px; display: inline-flex; justify-content: center; gap: 6px; align-items: center; padding: 6px 8px; font-size: 13px; white-space: nowrap; }
+  .status-indicator ha-icon { --mdc-icon-size: 18px; }
+  .status-indicator.ok ha-icon { color: var(--success-color, #43a047); }
+  .status-indicator.unknown ha-icon { color: var(--hc-secondary); }
   .warning { border: 0; background: color-mix(in srgb, var(--warning-color, #ffa726) 12%, transparent); color: var(--hc-primary); border-radius: 6px; display: inline-flex; gap: 6px; align-items: center; padding: 6px 8px; font-size: 13px; }
   .warning ha-icon { color: var(--warning-color, #ffa726); --mdc-icon-size: 18px; }
   .error, .unavailable { padding: 12px; text-align: center; overflow-wrap: anywhere; }
