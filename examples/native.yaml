@@ -1,0 +1,6 @@
+type: custom:humidifier-card
+entity: humidifier.living_room
+# Native attributes: humidity, current_humidity, mode, available_modes,
+# min_humidity and max_humidity.
+# Optional override if current_humidity is not supplied by the integration:
+# humidity_entity: sensor.living_room_humidity

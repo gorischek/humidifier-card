@@ -1,0 +1,23 @@
+type: custom:humidifier-card
+entity: switch.levoit_luftbefeuchter_luftbefeuchter
+target_humidity_entity: number.levoit_luftbefeuchter_zielfeuchtigkeit
+humidity_entity: sensor.levoit_luftbefeuchter_luftfeuchtigkeit
+mode_entity: select.levoit_luftbefeuchter_betriebsmodus
+temperature_entity: sensor.levoit_luftbefeuchter_temperatur
+water_missing_entity: binary_sensor.levoit_luftbefeuchter_wasser_fehlt
+tank_missing_entity: binary_sensor.levoit_luftbefeuchter_tank_fehlt
+name: Levoit Luftbefeuchter
+compact_view: false
+show_name: false
+show_state: true
+show_mode: true
+show_toolbar: true
+stats:
+  - entity_id: sensor.levoit_luftbefeuchter_temperatur
+    subtitle: Temperatur
+    unit: °C
+    precision: 1
+  - entity_id: number.levoit_luftbefeuchter_zielfeuchtigkeit
+    subtitle: Zielfeuchtigkeit
+    unit: '%'
+    precision: 0

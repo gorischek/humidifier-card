@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Humidifier Card — Vorschau</title>
+<style>
+  :root { --primary-color:#039be5; --primary-text-color:#212121; --secondary-text-color:#727272; --card-background-color:#fff; --ha-card-background:#fff; --divider-color:#e4e6e8; --warning-color:#ed9a20; --error-color:#db4437; --secondary-background-color:#f1f3f4; }
+  body { margin:0; padding:28px; background:#f5f6f8; font:14px 'DejaVu Sans',Arial,sans-serif; color:var(--primary-text-color); }
+  body.dark { --primary-text-color:#e5e7eb; --secondary-text-color:#a0a5ad; --card-background-color:#1c2026; --ha-card-background:#1c2026; --divider-color:#343a43; --secondary-background-color:#292e36; background:#11151a; }
+  h1 { font-size:20px; margin:0 0 8px; font-weight:600; }
+  p { color:var(--secondary-text-color); margin:0 0 24px; }
+  main { display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; }
+  humidifier-card { width:360px; max-width:100%; }
+  ha-card { border:1px solid var(--divider-color); border-radius:12px; box-shadow:0 2px 8px #00000006; }
+  @media(max-width:500px) { body { padding:16px; } }
+</style>
+<h1>Levoit Luftbefeuchter</h1>
+<p>Vorschau mit simulierten Home-Assistant-Zuständen · Humidifier Card 1.0.0</p>
+<main><humidifier-card id="full"></humidifier-card><humidifier-card id="compact"></humidifier-card></main>
+<script type="module">
+  customElements.define('round-slider', class extends HTMLElement {});
+  customElements.define('purifier-round-slider', class extends HTMLElement {});
+  customElements.define('ha-card', class extends HTMLElement {
+    constructor() { super(); this.attachShadow({mode:'open'}).innerHTML='<style>:host{display:block;border:1px solid var(--divider-color);border-radius:12px;box-shadow:0 2px 8px #00000006;overflow:hidden}</style><slot></slot>'; }
+  });
+  customElements.define('ha-icon', class extends HTMLElement {
+    constructor() { super(); this.attachShadow({mode:'open'}); }
+    static observedAttributes = ['icon'];
+    connectedCallback() { this.draw(); }
+    attributeChangedCallback() { this.draw(); }
+    draw() {
+      const icon = this.getAttribute('icon');
+      const paths = {
+        'mdi:power': 'M12 2v10M5.6 5.6a9 9 0 1 0 12.8 0',
+        'mdi:dots-vertical': 'M12 5h.01M12 12h.01M12 19h.01',
+        'mdi:air-humidifier': 'M5 10h14l1 11H4ZM9 7c-3-2 3-3 0-5M15 7c3-2-3-3 0-5',
+        'mdi:water-alert': 'M9 2S3 9 3 13a6 6 0 0 0 12 0C15 9 9 2 9 2ZM20 6v7M20 17h.01',
+        'mdi:cup-off-outline': 'M4 5h13l-1 14H6ZM17 7h4v6h-4M2 2l20 20',
+      };
+      this.shadowRoot.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" style="display:block" fill="none" stroke="currentColor" stroke-width="${icon === 'mdi:dots-vertical' ? 3 : 1.7}" stroke-linecap="round" stroke-linejoin="round"><path d="${paths[icon] ?? 'M12 3l10 18H2ZM12 9v5M12 17h.01'}"/></svg>`;
+    }
+  });
+  await import('/dist/humidifier-card.js');
+  const ids = window.ids = {
+    power: 'switch.levoit_luftbefeuchter_luftbefeuchter', target: 'number.levoit_luftbefeuchter_zielfeuchtigkeit',
+    humidity: 'sensor.levoit_luftbefeuchter_luftfeuchtigkeit', mode: 'select.levoit_luftbefeuchter_betriebsmodus',
+    temp: 'sensor.levoit_luftbefeuchter_temperatur', water: 'binary_sensor.levoit_luftbefeuchter_wasser_fehlt', tank: 'binary_sensor.levoit_luftbefeuchter_tank_fehlt',
+  };
+  const entity = (id, state, attributes = {}) => ({ entity_id:id, state, attributes, last_changed:'2026-10-12T17:00:00Z', last_updated:'2026-10-12T17:00:00Z', context:{id:'test',parent_id:null,user_id:null} });
+  window.calls = [];
+  window.templateSubscriptions = [];
+  window.autoAck = true;
+  window.serviceError = false;
+  let states = {
+    [ids.power]:entity(ids.power, 'on', {friendly_name:'Levoit Luftbefeuchter'}),
+    [ids.target]:entity(ids.target,'45',{min:30,max:80,step:5,unit_of_measurement:'%'}),
+    [ids.humidity]:entity(ids.humidity,'43.2',{unit_of_measurement:'%'}),
+    [ids.mode]:entity(ids.mode,'Auto',{options:['Auto','Niedrig','Hoch']}),
+    [ids.temp]:entity(ids.temp,'22.35',{unit_of_measurement:'°C'}),
+    [ids.water]:entity(ids.water,'off'), [ids.tank]:entity(ids.tank,'off'),
+  };
+  const connection = {
+    subscribeMessage(callback, message) {
+      const subscription = { callback, message, active:true };
+      window.templateSubscriptions.push(subscription);
+      setTimeout(() => { if(subscription.active) callback({result:String(Math.round(Number(message.variables.value)))}); }, 15);
+      return Promise.resolve(() => { subscription.active=false; });
+    },
+  };
+  const createHass = () => ({states, language:'de', connection, async callService(domain,service,data) {
+    window.calls.push({domain,service,data});
+    if(window.serviceError) throw new Error('Simulierter Fehler');
+    if(window.autoAck) setTimeout(() => window.update(data.entity_id, service === 'turn_on' ? 'on' : service === 'turn_off' ? 'off' : String(data.value ?? data.option ?? states[data.entity_id].state), domain === 'humidifier' ? { ...states[data.entity_id].attributes, ...(service === 'set_humidity' ? {humidity:data.humidity} : {}), ...(service === 'set_mode' ? {mode:data.mode} : {}) } : undefined), 10);
+  }});
+  window.config = {
+    type:'custom:humidifier-card', entity:ids.power, target_humidity_entity:ids.target,
+    humidity_entity:ids.humidity, mode_entity:ids.mode, temperature_entity:ids.temp,
+    water_missing_entity:ids.water, tank_missing_entity:ids.tank, show_name:false,
+    stats:[{entity_id:ids.temp,subtitle:'Temperatur',unit:'°C',precision:1},{entity_id:ids.target,subtitle:'Zielfeuchtigkeit',unit:'%',precision:0}],
+  };
+  const full = window.card = document.querySelector('#full');
+  const compact = window.compact = document.querySelector('#compact');
+  window.update = (id, state, attributes) => {
+    states = {...states,[id]:entity(id,state,attributes ?? states[id]?.attributes ?? {})};
+    full.hass = createHass(); compact.hass = createHass();
+  };
+  full.setConfig(window.config); compact.setConfig({...window.config,compact_view:true});
+  full.hass = createHass(); compact.hass = createHass();
+  window.createHass = createHass;
+  window.ready = true;
+</script>
+</html>
