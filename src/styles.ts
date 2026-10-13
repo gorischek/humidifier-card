@@ -33,10 +33,6 @@ export const styles = css`
   .device.running .mist:nth-child(3) { animation-delay: -1.6s; }
   @keyframes mist { 0% { opacity: 0; transform: translateY(9px); } 40% { opacity: .55; } 100% { opacity: 0; transform: translateY(-10px); } }
   @media (prefers-reduced-motion: reduce) { .device.running .mist { animation: none; opacity: .45; } }
-  .slider-center { position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%); width: 130px; text-align: center; pointer-events: none; }
-  .humidity { font-size: 44px; font-weight: 600; line-height: 1.1; }
-  .humidity sup { font-size: 17px; font-weight: 400; }
-  .humidity-label { font-size: 11px; color: var(--hc-secondary); margin-top: 3px; }
   .target { position: absolute; bottom: 5px; left: 0; right: 0; text-align: center; font-size: 15px; pointer-events: none; }
   .target small { color: var(--hc-secondary); }
   .metadata { text-align: center; padding: 8px 12px 12px; }
@@ -65,8 +61,7 @@ export const styles = css`
   .error, .unavailable { padding: 12px; text-align: center; overflow-wrap: anywhere; }
   .error { color: var(--error-color, #db4437); font-size: 13px; border-top: 1px solid var(--hc-divider); }
   .compact { width: 100%; padding: 8px 16px; box-sizing: border-box; }
-  .compact-values { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .compact .humidity { font-size: 36px; }
+  .compact-values { display: flex; justify-content: center; align-items: center; }
   .compact input { width: 100%; accent-color: var(--hc-accent); margin: 16px 0 0; }
-  .compact-target { text-align: right; }
+  .compact-target { text-align: center; }
 `;

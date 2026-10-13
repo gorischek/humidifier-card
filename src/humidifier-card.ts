@@ -181,13 +181,10 @@ export class HumidifierCard extends LitElement {
     const config = this.config!;
     const target = targetInfo(config, this.hass.states);
     const entity = this.hass.states[config.entity];
-    const humidityEntity = config.humidity_entity ? this.hass.states[config.humidity_entity] : entity;
-    const current = isAvailable(humidityEntity) ? (config.humidity_entity ? humidityEntity.state : entity.attributes.current_humidity) : undefined;
     const value = this.draftTarget ?? target.value;
     const disabled = !target.available || !isAvailable(entity) || Boolean(this.pending);
-    const humidity = html`<div class="humidity">${this.format(current)}<sup> %</sup></div><div class="humidity-label">${this.t('humidity')}</div>`;
     if (config.compact_view) return html`<div class="compact">
-      <div class="compact-values"><div>${humidity}</div><div class="compact-target">${this.t('target')}<br><strong>${this.format(value, 1)} %</strong></div></div>
+      <div class="compact-values"><div class="compact-target">${this.t('target')}<br><strong>${this.format(value, 1)} %</strong></div></div>
       <input type="range" aria-label=${this.t('target')} min=${target.min} max=${target.max} step=${target.step}
         .value=${String(value ?? target.min)} ?disabled=${disabled}
         @input=${(event: Event) => { this.draftTarget = numeric((event.target as HTMLInputElement).value); }}
@@ -200,7 +197,6 @@ export class HumidifierCard extends LitElement {
         @value-changed=${(event: CustomEvent<{ value: number }>) => this.setTarget(event.detail.value)}>
       </humidifier-round-slider>
       ${this.renderDevice(entity.state === 'on' && !this.activeWarnings().some(w => w.entity_id === config.water_missing_entity || w.entity_id === config.tank_missing_entity))}
-      <div class="slider-center">${humidity}</div>
       <div class="target"><small>${this.t('target')}</small> ${this.format(value, 1)} %</div>
     </div>`;
   }
@@ -255,7 +251,11 @@ export class HumidifierCard extends LitElement {
     const config = this.config!;
     const defaults: Stat[] = [];
     if (config.temperature_entity) defaults.push({ entity_id: config.temperature_entity, precision: 1, subtitle: this.t('temperature') });
-    if (config.target_humidity_entity) defaults.push({ entity_id: config.target_humidity_entity, precision: 1, subtitle: this.t('target') });
+    if (config.humidity_entity) {
+      defaults.push({ entity_id: config.humidity_entity, unit: '%', precision: 0, subtitle: this.t('humidity') });
+    } else if (config.entity.startsWith('humidifier.')) {
+      defaults.push({ attribute: 'current_humidity', unit: '%', precision: 0, subtitle: this.t('humidity') });
+    }
     const stats = config.stats ?? defaults;
     if (!stats.length) return nothing;
     return html`<div class="stats">${repeat(stats, (_, index) => index, stat => {

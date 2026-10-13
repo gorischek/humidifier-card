@@ -15,7 +15,7 @@
   @media(max-width:500px) { body { padding:16px; } }
 </style>
 <h1>Levoit Luftbefeuchter</h1>
-<p>Vorschau mit simulierten Home-Assistant-Zuständen · Humidifier Card 1.0.1</p>
+<p>Vorschau mit simulierten Home-Assistant-Zuständen · Humidifier Card 1.0.2</p>
 <main><humidifier-card id="full"></humidifier-card><humidifier-card id="compact"></humidifier-card></main>
 <script type="module">
   customElements.define('round-slider', class extends HTMLElement {});
@@ -79,7 +79,7 @@
     type:'custom:humidifier-card', entity:ids.power, target_humidity_entity:ids.target,
     humidity_entity:ids.humidity, mode_entity:ids.mode, temperature_entity:ids.temp,
     water_missing_entity:ids.water, tank_missing_entity:ids.tank, show_name:false,
-    stats:[{entity_id:ids.temp,subtitle:'Temperatur',unit:'°C',precision:1},{entity_id:ids.target,subtitle:'Zielfeuchtigkeit',unit:'%',precision:0}],
+    stats:[{entity_id:ids.temp,subtitle:'Temperatur',unit:'°C',precision:1},{entity_id:ids.humidity,subtitle:'Luftfeuchtigkeit',unit:'%',precision:0}],
   };
   const full = window.card = document.querySelector('#full');
   const compact = window.compact = document.querySelector('#compact');

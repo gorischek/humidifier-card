@@ -24,7 +24,10 @@ try {
   await page.goto(url);
   await page.waitForFunction(() => window.ready);
   const full = page.locator('#full');
-  await expect(full.locator('.humidity')).toHaveText('43 %');
+  await expect(full.locator('.slider-center')).toHaveCount(0);
+  await expect(full.locator('.stats-value').nth(1)).toHaveText('43');
+  await expect(full.locator('.stats-subtitle').nth(1)).toHaveText('Luftfeuchtigkeit');
+  await expect(page.locator('#compact .stats-value').nth(1)).toHaveText('43');
   await expect(full.locator('.target')).toContainText('45 %');
   await expect(full.locator('.stats-value').first()).toHaveText('22,4');
   await expect(full.locator('.mode-control select')).toHaveValue('Auto');
@@ -38,7 +41,8 @@ try {
 
   // Independent sensor updates, warnings and unavailable states refresh immediately.
   await page.evaluate(() => window.update(window.ids.humidity,'48.7'));
-  await expect(full.locator('.humidity')).toHaveText('49 %');
+  await expect(full.locator('.stats-value').nth(1)).toHaveText('49');
+  await expect(page.locator('#compact .stats-value').nth(1)).toHaveText('49');
   await page.evaluate(() => window.update(window.ids.temp,'23.1'));
   await expect(full.locator('.stats-value').first()).toHaveText('23,1');
   await page.evaluate(() => window.update(window.ids.water,'on'));
@@ -59,7 +63,7 @@ try {
   await expect(full.locator('.status-indicator.ok')).toHaveCount(1);
   await page.evaluate(() => window.update(window.ids.water,'off'));
   await page.evaluate(() => window.update(window.ids.humidity,'unavailable'));
-  await expect(full.locator('.humidity')).toHaveText('— %');
+  await expect(full.locator('.stats-value').nth(1)).toHaveText('—');
   await page.evaluate(() => window.update(window.ids.humidity,'43.2'));
 
   // Operating mode and power calls use the actual Levoit entities.
@@ -107,6 +111,14 @@ try {
   await expect(full.locator('.target')).toContainText('—');
   await page.evaluate(() => window.update(window.ids.target,'45'));
 
+  // Default stats use measured humidity beside temperature; explicit stats remain configurable.
+  await page.evaluate(() => window.card.setConfig({...window.config,stats:undefined}));
+  await expect(full.locator('.stats-subtitle')).toHaveText(['Temperatur','Luftfeuchtigkeit']);
+  await expect(full.locator('.stats-value').nth(1)).toHaveText('43');
+  await page.evaluate(() => window.card.setConfig({...window.config,stats:[]}));
+  await expect(full.locator('.stats')).toHaveCount(0);
+  await page.evaluate(() => window.card.setConfig(window.config));
+
   // Template subscription keeps formatted output during refresh; stale callbacks cannot overwrite it.
   await page.evaluate(() => {
     window.update('sensor.filter','99.98986');
@@ -151,7 +163,8 @@ try {
     window.update('humidifier.native','on',{humidity:50,current_humidity:46,min_humidity:35,max_humidity:70,mode:'auto',available_modes:['auto','low']});
     window.card.setConfig({entity:'humidifier.native'});
   });
-  await expect(full.locator('.humidity')).toHaveText('46 %');
+  await expect(full.locator('.stats-value')).toHaveText('46');
+  await expect(full.locator('.stats-subtitle')).toHaveText('Luftfeuchtigkeit');
   await expect(full.locator('.status-indicators')).toHaveCount(0);
   await expect(full.locator('.target')).toContainText('50 %');
   await full.locator('.mode-control select').selectOption('low');

@@ -17,7 +17,7 @@ stats:
     subtitle: Temperatur
     unit: °C
     precision: 1
-  - entity_id: number.levoit_luftbefeuchter_zielfeuchtigkeit
-    subtitle: Zielfeuchtigkeit
+  - entity_id: sensor.levoit_luftbefeuchter_luftfeuchtigkeit
+    subtitle: Luftfeuchtigkeit
     unit: '%'
     precision: 0

@@ -1,6 +1,6 @@
 # Humidifier Card
 
-Eine Luftbefeuchter-Karte für Home Assistant mit Kreisregler für die Zielfeuchtigkeit, aktuellem Feuchtigkeitswert, Betriebsmodi und Wasser-/Tankwarnungen. Die Anordnung orientiert sich an der **Purifier Card**, sodass beide Karten zusammenpassen.
+Eine Luftbefeuchter-Karte für Home Assistant mit Kreisregler für die Zielfeuchtigkeit, aktueller Luftfeuchtigkeit neben der Temperatur, Betriebsmodi und Wasser-/Tankwarnungen. Die Anordnung orientiert sich an der **Purifier Card**, sodass beide Karten zusammenpassen.
 
 Unterstützt werden:
 
@@ -51,8 +51,8 @@ stats:
     subtitle: Temperatur
     unit: °C
     precision: 1
-  - entity_id: number.levoit_luftbefeuchter_zielfeuchtigkeit
-    subtitle: Zielfeuchtigkeit
+  - entity_id: sensor.levoit_luftbefeuchter_luftfeuchtigkeit
+    subtitle: Luftfeuchtigkeit
     unit: '%'
     precision: 0
 ```
@@ -60,7 +60,7 @@ stats:
 Auch als Datei unter [examples/levoit.yaml](examples/levoit.yaml) verfügbar.
 
 - **Kreisregler:** stellt die Zielfeuchtigkeit ein. Minimum, Maximum und Schrittweite stammen von der Zielwert-Entität. Ein Service-Aufruf erfolgt beim Loslassen; die Tastatursteuerung wird beim Verlassen des Reglers bestätigt.
-- **Mitte:** aktuelle Luftfeuchtigkeit, auf ganze Prozent gerundet.
+- **Mitte:** Gerätebild mit Nebelanimation. Die aktuelle Luftfeuchtigkeit steht unten neben der Temperatur; der Zielwert bleibt unter dem Kreisregler sichtbar.
 - **Oben:** Auswahl der vom Gerät angebotenen Betriebsmodi. Die ursprünglichen Optionsnamen werden unverändert an HA gesendet.
 - **Unten:** Ein/Aus, Schnellwahl der Betriebsmodi sowie die Statistikfelder.
 - **Tank und Wasser:** eine eigene Statuszeile zeigt immer „Tank vorhanden“ und „Wasser vorhanden“ beziehungsweise „Tank fehlt“ und „Wasser fehlt“. Die Binärsensoren melden keinen Füllstand. `on` bedeutet „fehlt“, `off` bedeutet „vorhanden“. Unbekannte oder nicht verfügbare Zustände werden ausdrücklich angezeigt. Ein Klick öffnet die jeweilige Entität.
@@ -95,7 +95,7 @@ Verwendet die Attribute `humidity`, `current_humidity`, `min_humidity`, `max_hum
 | `show_mode` | Modusauswahl oben anzeigen | `true` |
 | `show_toolbar` | Ein/Aus und Modusschaltflächen unten anzeigen | `true` |
 | `compact_view` | Kompakte Ansicht mit linearem Regler | `false` |
-| `stats` | Eigene Statistikfelder; `[]` blendet sie aus | Temperatur und separater Zielwert, soweit konfiguriert |
+| `stats` | Eigene Statistikfelder; `[]` blendet sie aus | Temperatur und aktuelle Luftfeuchtigkeit, soweit verfügbar |
 | `warnings` | Zusätzliche Warnungen | `[]` |
 
 Ein/Aus wird mit `switch.turn_on` / `switch.turn_off` beziehungsweise `humidifier.turn_on` / `humidifier.turn_off` gesteuert. Zielwerte nutzen `number.set_value`, `input_number.set_value` oder `humidifier.set_humidity`. Modi nutzen `select.select_option`, `input_select.select_option` oder `humidifier.set_mode`.
@@ -152,10 +152,11 @@ npm run test:browser
 
 Nach Änderungen **`npm run build`** ausführen und die aktualisierte Datei unter `dist/` zusammen mit dem Quellcode committen. Der Check-Workflow prüft, ob Quellcode und Bundle zusammenpassen.
 
-Für ein Release die Version in `package.json` und `package-lock.json` erhöhen, neu bauen und committen. Anschließend entweder einen passenden `v*`-Tag pushen oder unter **Actions → Publish release → Run workflow** den Release-Workflow starten. Er prüft den Code und veröffentlicht die gebaute `humidifier-card.js` als Release-Anhang. Für die aktuelle Version `1.0.1` ist der Tag `v1.0.1`.
+Für ein Release die Version in `package.json` und `package-lock.json` erhöhen, neu bauen und committen. Anschließend entweder einen passenden `v*`-Tag pushen oder unter **Actions → Publish release → Run workflow** den Release-Workflow starten. Er prüft den Code und veröffentlicht die gebaute `humidifier-card.js` als Release-Anhang. Für die aktuelle Version `1.0.2` ist der Tag `v1.0.2`.
 
 ## Herkunft und Lizenz
 
 Diese Karte wurde aus dem Konzept und Teilen des Codes von [Purifier Card](https://github.com/denysdovhan/purifier-card) von **Denys Dovhan** abgeleitet. Ausgangspunkt war [gorischek/purifier-card](https://github.com/gorischek/purifier-card), einschließlich des Statistik-Template-Fixes. Der Kreisregler stammt von **Thomas Lovén** (`@thomasloven/round-slider`); sein Elementname wird beim Build auf `humidifier-round-slider` geändert, damit es keine Kollision mit HA oder der Purifier Card gibt.
 
 Die ursprüngliche MIT-Lizenz und die Urheberhinweise bleiben erhalten. Lizenzhinweise für eingebundene Bibliotheken stehen auch im fertigen Bundle.
+
