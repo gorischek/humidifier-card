@@ -67,7 +67,7 @@ Auch als Datei unter [examples/levoit.yaml](examples/levoit.yaml) verfügbar.
 
 Die Karte führt keine eigene Regelung aus. Vorhandene Automationen für Zeitfenster, Fensterkontakt, Feuchtigkeitsregelung und Tankzustand arbeiten weiter. Manuelle Änderungen können von diesen Automationen beim nächsten Durchlauf wieder angepasst werden.
 
-Die Nebelanimation zeigt bei der Konfiguration mit einem Schalter **eingeschaltet** an; sie bestätigt keine tatsächlich gemessene Nebelerzeugung. Bei einer Wasser-/Tankwarnung wird sie angehalten. Unbekannte oder nicht verfügbare Sensorwerte erscheinen als `—`, nicht als `0`. Ein nicht verfügbarer Warnsensor wird ausdrücklich als solcher angezeigt.
+Das Gerätebild ist eine symbolische, KI-generierte Darstellung; das abgebildete Wasser zeigt keinen gemessenen Füllstand. Die Nebelanimation zeigt bei der Konfiguration mit einem Schalter **eingeschaltet** an; sie bestätigt keine tatsächlich gemessene Nebelerzeugung. Bei einer Wasser-/Tankwarnung wird sie angehalten. Unbekannte oder nicht verfügbare Sensorwerte erscheinen als `—`, nicht als `0`. Ein nicht verfügbarer Warnsensor wird ausdrücklich als solcher angezeigt.
 
 ## Native humidifier-Entität
 
@@ -152,7 +152,7 @@ npm run test:browser
 
 Nach Änderungen **`npm run build`** ausführen und die aktualisierte Datei unter `dist/` zusammen mit dem Quellcode committen. Der Check-Workflow prüft, ob Quellcode und Bundle zusammenpassen.
 
-Für ein Release die Version in `package.json` und `package-lock.json` erhöhen, neu bauen und committen. Anschließend entweder einen passenden `v*`-Tag pushen oder unter **Actions → Publish release → Run workflow** den Release-Workflow starten. Er prüft den Code und veröffentlicht die gebaute `humidifier-card.js` als Release-Anhang. Für die aktuelle Version `1.0.2` ist der Tag `v1.0.2`.
+Für ein Release die Version in `package.json` und `package-lock.json` erhöhen, neu bauen und committen. Anschließend entweder einen passenden `v*`-Tag pushen oder unter **Actions → Publish release → Run workflow** den Release-Workflow starten. Er prüft den Code und veröffentlicht die gebaute `humidifier-card.js` als Release-Anhang. Für die aktuelle Version `1.0.3` ist der Tag `v1.0.3`.
 
 ## Herkunft und Lizenz
 

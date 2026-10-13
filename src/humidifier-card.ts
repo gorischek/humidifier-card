@@ -1,4 +1,4 @@
-import { LitElement, html, nothing, svg, type PropertyValues } from 'lit';
+import { LitElement, html, nothing, type PropertyValues } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { fireEvent, type HomeAssistant } from 'custom-card-helpers';
@@ -6,6 +6,7 @@ import '@thomasloven/round-slider';
 import './stat-template';
 import './editor';
 import { styles } from './styles';
+import humidifierImage from './images/humidifier-v2.webp';
 import {
   buildConfig, isAvailable, modeInfo, modeRequest, numeric, readStat,
   targetInfo, targetRequest, trackedEntities,
@@ -163,18 +164,16 @@ export class HumidifierCard extends LitElement {
   }
 
   private renderDevice(running: boolean) {
-    return svg`<svg class="device ${running ? 'running' : ''}" viewBox="0 0 120 180" aria-hidden="true">
-      <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
-        <path class="mist" d="M43 35c-12-9 10-12 0-23"/>
-        <path class="mist" d="M60 34c12-10-10-15 0-29"/>
-        <path class="mist" d="M77 35c12-9-10-12 0-23"/>
-      </g>
-      <path d="M25 45Q25 39 31 39H89Q95 39 95 45L102 151Q103 162 91 162H29Q17 162 18 151Z" fill="var(--card-background-color, #fff)" stroke="var(--hc-divider)" stroke-width="2"/>
-      <path d="M31 40h58l-6 8H37Z" fill="var(--hc-divider)"/>
-      <path d="M34 52h52v28H34Z" fill="currentColor" opacity=".07"/>
-      <path d="M25 139h70" stroke="var(--hc-divider)"/>
-      <circle cx="60" cy="149" r="3" fill="currentColor" opacity=${running ? '1' : '.3'}/>
-    </svg>`;
+    return html`<div class="device ${running ? 'running' : ''}" aria-hidden="true">
+      <img class="device-image" src=${humidifierImage} alt="" />
+      <svg class="device-mist" viewBox="0 0 120 48">
+        <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <path class="mist" d="M43 44c-12-9 10-12 0-23"/>
+          <path class="mist" d="M60 44c12-10-10-15 0-29"/>
+          <path class="mist" d="M77 44c12-9-10-12 0-23"/>
+        </g>
+      </svg>
+    </div>`;
   }
 
   private renderControls() {

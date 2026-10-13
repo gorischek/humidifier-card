@@ -7,6 +7,7 @@ await mkdir('dist', { recursive: true });
 await build({
   entryPoints: ['src/humidifier-card.ts'], outfile: 'dist/humidifier-card.js',
   bundle: true, format: 'esm', target: 'es2022', minify: true,
+  loader: { '.webp': 'dataurl' },
   legalComments: 'inline', banner: { js: licenses.join('\n') },
   define: { CARD_VERSION: JSON.stringify(pkg.version) },
   plugins: [{

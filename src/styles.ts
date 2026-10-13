@@ -26,7 +26,9 @@ export const styles = css`
   .controls { display: flex; justify-content: center; }
   .slider { position: relative; width: min(100%, 250px); aspect-ratio: 1; }
   humidifier-round-slider { display: block; width: 100%; --round-slider-path-color: var(--round-slider-path-color, var(--hc-divider)); --round-slider-bar-color: var(--round-slider-bar-color, var(--hc-accent)); }
-  .device { position: absolute; top: 17%; left: 26%; width: 48%; height: 64%; pointer-events: none; color: var(--hc-accent); }
+  .device { position: absolute; top: 25%; left: 18%; width: 64%; height: 64%; pointer-events: none; color: var(--hc-accent); }
+  .device-image { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .device-mist { position: absolute; top: -12%; left: 22%; width: 56%; height: 30%; overflow: visible; }
   .mist { opacity: 0; }
   .device.running .mist { animation: mist 2.4s ease-in-out infinite; }
   .device.running .mist:nth-child(2) { animation-delay: -.8s; }

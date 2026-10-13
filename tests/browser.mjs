@@ -25,6 +25,8 @@ try {
   await page.waitForFunction(() => window.ready);
   const full = page.locator('#full');
   await expect(full.locator('.slider-center')).toHaveCount(0);
+  await expect(full.locator('.device-image')).toHaveCount(1);
+  await expect.poll(() => full.locator('.device-image').evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
   await expect(full.locator('.stats-value').nth(1)).toHaveText('43');
   await expect(full.locator('.stats-subtitle').nth(1)).toHaveText('Luftfeuchtigkeit');
   await expect(page.locator('#compact .stats-value').nth(1)).toHaveText('43');
@@ -48,6 +50,7 @@ try {
   await page.evaluate(() => window.update(window.ids.water,'on'));
   await expect(full.locator('.warning')).toContainText('Wasser fehlt');
   await expect(full.locator('.device')).not.toHaveClass(/running/);
+  await expect(full.locator('.device-image')).toHaveCount(1);
   await page.evaluate(() => window.update(window.ids.water,'off'));
   await page.evaluate(() => window.update(window.ids.tank,'on'));
   await expect(full.locator('.warning')).toContainText('Tank fehlt');
